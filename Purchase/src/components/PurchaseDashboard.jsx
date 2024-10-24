@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './PurchaseDashboard.css'; 
+
 const PurchaseDashboard = () => {
   const [purchaseDetails, setPurchaseDetails] = useState({
     itemName: '',
@@ -14,18 +15,22 @@ const PurchaseDashboard = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setPurchaseDetails({
-      ...purchaseDetails,
-      [name]: value
-    });
-
-    if (name === 'quantity' || name === 'unitPrice') {
-      const totalPrice = (purchaseDetails.quantity || 0) * (purchaseDetails.unitPrice || 0);
-      setPurchaseDetails(prevState => ({
+    
+    setPurchaseDetails(prevState => {
+      const updatedDetails = {
         ...prevState,
-        totalPrice
-      }));
-    }
+        [name]: value
+      };
+
+      // Calculate total price when quantity or unit price changes
+      if (name === 'quantity' || name === 'unitPrice') {
+        const quantity = updatedDetails.quantity ? parseFloat(updatedDetails.quantity) : 0;
+        const unitPrice = updatedDetails.unitPrice ? parseFloat(updatedDetails.unitPrice) : 0;
+        updatedDetails.totalPrice = quantity * unitPrice;
+      }
+
+      return updatedDetails;
+    });
   };
 
   const createPurchaseRequest = () => {
@@ -52,7 +57,6 @@ const PurchaseDashboard = () => {
     <div className="dashboard-container">
       <h1>Create Purchase Request</h1>
       <form className="purchase-form">
-        {/** Form Fields */}
         <div className="form-group">
           <label>Item Name</label>
           <input
